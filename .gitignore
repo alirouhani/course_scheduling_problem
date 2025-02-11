@@ -1,3 +1,6 @@
 tags
 *.lp
 *.txt
+AP/
+rc1/
+.DS_Store
