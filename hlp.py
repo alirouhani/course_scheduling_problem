@@ -1,6 +1,5 @@
 from gurobipy import Model, GRB, quicksum
 import math
-import random
 import numpy as np
 
 def read_hlp_data(file_path):
@@ -48,7 +47,8 @@ def solve_hlp(file_path, fixCost_path, cap_path):
     n, x_coord, y_coord, w, delta, alpha, chi = read_hlp_data(file_path)
     d = [[calculate_distance(x_coord[i], y_coord[i], x_coord[j], y_coord[j]) for j in range(n)] for i in range(n)]
     f, u = read_fix_data(n, fixCost_path, cap_path)
-    
+
+    totalFlow = np.sum(w)
     model = Model("HLP")
     
     z = model.addVars(n, n, vtype=GRB.BINARY, name="z")
@@ -56,7 +56,7 @@ def solve_hlp(file_path, fixCost_path, cap_path):
     
     model.setObjective(
         quicksum(f[k] * z[k,k] for k in range(n)) + 
-        quicksum(w[i][j] * (delta*d[i][k] + alpha*d[k][l] + chi*d[l][j]) * x[i,j,k,l] for i in range(n) for j in range(n) for k in range(n) for l in range(n)),
+        quicksum((w[i][j]/totalFlow) * (delta*d[i][k] + alpha*d[k][l] + chi*d[l][j]) * x[i,j,k,l] for i in range(n) for j in range(n) for k in range(n) for l in range(n)),
         GRB.MINIMIZE
     )
 
